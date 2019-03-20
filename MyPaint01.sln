@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2036
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyPaint01", "MyPaint01\MyPaint01.csproj", "{8D4B1AD1-F0D0-4226-818C-CBC3B741979D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8D4B1AD1-F0D0-4226-818C-CBC3B741979D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D4B1AD1-F0D0-4226-818C-CBC3B741979D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D4B1AD1-F0D0-4226-818C-CBC3B741979D}.Debug|x86.ActiveCfg = Debug|x86
+		{8D4B1AD1-F0D0-4226-818C-CBC3B741979D}.Debug|x86.Build.0 = Debug|x86
+		{8D4B1AD1-F0D0-4226-818C-CBC3B741979D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D4B1AD1-F0D0-4226-818C-CBC3B741979D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D4B1AD1-F0D0-4226-818C-CBC3B741979D}.Release|x86.ActiveCfg = Release|x86
+		{8D4B1AD1-F0D0-4226-818C-CBC3B741979D}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A15E35D7-CCBB-44DA-B4FE-B7FECE49997A}
+	EndGlobalSection
+EndGlobal
