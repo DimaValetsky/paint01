@@ -1,34 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Drawing;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Shapes;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Controls.Primitives;
-using System.IO;
+using System.Windows.Shapes;
 
 namespace MyPaint01
 {
-    
-    enum DrawType { nothing, pencil, brush, line, ellipse, rectangle, triangle, arrow, heart, fill, erase, text};
+
+    enum DrawType { nothing, line, ellipse, rectangle, triangle, arrow, heart};
 
     
     class Document  : Window
     {
         public Canvas canvas;  
-        public DrawType drawType;
+        public DrawType drawType; 
         public Document(Canvas c)
         {
             drawType = DrawType.nothing;
             canvas = c;
         }
 
-        public void DrawCapture(Shape shape)
+        public void DrawCapture(Shape shape) 
         {
             double[] dashes = { 2, 2 };
             shape.StrokeDashArray = new System.Windows.Media.DoubleCollection(dashes);
@@ -52,10 +48,10 @@ namespace MyPaint01
             else
             {
                 double[] dashes = { 4, 1, 4, 1 };
-                
+                //shape.SnapsToDevicePixels = true;
                 ((Shape)control.Content).StrokeDashArray = new System.Windows.Media.DoubleCollection(dashes);
             }
-            
+            //
             canvas.Children.Add(control);
        
         }
@@ -75,7 +71,7 @@ namespace MyPaint01
             else
             {
                 double[] dashes = { 4, 1, 4, 1 };
-                
+                //shape.SnapsToDevicePixels = true;
                 shape.StrokeDashArray = new System.Windows.Media.DoubleCollection(dashes);
             }
             
@@ -116,7 +112,7 @@ namespace MyPaint01
                     }
                     BitmapImage temp = new BitmapImage(new Uri(tempPath, UriKind.Relative));
                     brush.ImageSource = temp;
-                    
+                    //brush.ImageSource = (ImageSource)cvt.Convert(img, null, null, null);
                     
                     canvas.Background = brush;
                 }
@@ -188,10 +184,10 @@ namespace MyPaint01
             {
                 fileName = System.IO.Path.GetTempFileName();
 
-               
+                
                 System.IO.FileInfo fileInfo = new System.IO.FileInfo(fileName);
 
-                
+               
                 fileInfo.Attributes = System.IO.FileAttributes.Temporary;
                
             }
@@ -223,14 +219,58 @@ namespace MyPaint01
             return null;
         }
 
-       
-
-        public void InsertText(ContentControl control)
+        public void Fill(UIElement shape, System.Windows.Media.Color fillColor)
         {
-            canvas.Children.Add(control);  
+            for (int i = 0; i < canvas.Children.Count; i++)
+            {
+                if (canvas.Children[i] == shape)
+                {
+                    Shape temp = (Shape) canvas.Children[i];
+                    temp.Fill = new SolidColorBrush(fillColor);
+                }
+            }
         }
 
         
+
+        public void FloodFill(System.Drawing.Bitmap bm, System.Drawing.Point p, System.Drawing.Color Color)
+        {
+
+            Stack<System.Drawing.Point> S = new Stack<System.Drawing.Point>();
+            System.Drawing.Color OriColor = bm.GetPixel(p.X, p.Y);
+            bm.SetPixel(p.X, p.Y, Color);
+            S.Push(p);
+            while (S.Count != 0)
+            {
+                p = S.Pop();
+                if ((p.X - 1 >= 0) && SameColor(OriColor, bm.GetPixel(p.X - 1, p.Y)))
+                {
+                    bm.SetPixel(p.X - 1, p.Y, Color);
+                    S.Push(new System.Drawing.Point(p.X - 1, p.Y));
+                }
+                if ((p.X + 1 < bm.Width) && SameColor(OriColor, bm.GetPixel(p.X + 1, p.Y)))
+                {
+                    bm.SetPixel(p.X + 1, p.Y, Color);
+                    S.Push(new System.Drawing.Point(p.X + 1, p.Y));
+                }
+                if ((p.Y - 1 >= 0) && SameColor(OriColor, bm.GetPixel(p.X, p.Y - 1)))
+                {
+                    bm.SetPixel(p.X, p.Y - 1, Color);
+                    S.Push(new System.Drawing.Point(p.X, p.Y - 1));
+                }
+                if ((p.Y + 1 < bm.Height) && SameColor(OriColor, bm.GetPixel(p.X, p.Y + 1)))
+                {
+                    bm.SetPixel(p.X, p.Y + 1, Color);
+                    S.Push(new System.Drawing.Point(p.X, p.Y + 1));
+                }
+            }
+            System.Windows.Controls.Image img = new System.Windows.Controls.Image();
+            img.Width = canvas.ActualWidth;
+            img.Height = canvas.ActualHeight;
+            img.Source = BitmapToImageSource(bm);
+            canvas.Children.Clear();
+            canvas.Children.Add(img);
+        }
 
         private ImageSource BitmapToImageSource(Bitmap bm)
         {
@@ -238,7 +278,10 @@ namespace MyPaint01
             return b;
         }
 
-        
+        private bool SameColor(System.Drawing.Color c1, System.Drawing.Color c2)
+        {
+            return ((c1.A == c2.A) && (c1.B == c2.B) && (c1.G == c2.G) && (c1.R == c2.R));
+        }
 
         public Bitmap CanvasToBitmap(Canvas cv)
         {

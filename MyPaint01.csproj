@@ -89,10 +89,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Arrow.cs" />
+    <Compile Include="Adorners\ResizeRotateAdorner.cs" />
+    <Compile Include="Adorners\ResizeRotateChrome.cs" />
+    <Compile Include="Adorners\SizeAdorner.cs" />
+    <Compile Include="Adorners\SizeChrome.cs" />
+    <Compile Include="CustomShapes.cs" />
     <Compile Include="DesignerItemDecorator.cs" />
-    <Compile Include="Heart.cs" />
-    <Compile Include="Triangle.cs" />
     <Compile Include="WPFBitmapConverter.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -108,10 +110,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="Resources\DesignerItem.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Resources\SizeChrome.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -213,9 +211,6 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Hinh\Heart.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Adorners\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

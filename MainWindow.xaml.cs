@@ -16,7 +16,7 @@ using System.Windows.Controls.Primitives;
 
 namespace MyPaint01
 {
-    
+  
     public partial class MainWindow : Window
     {
         private Document doc;   
@@ -27,20 +27,16 @@ namespace MyPaint01
         private Line curLine;
         private Color fillColor, penColor;
         private double penThickness;
-        private PathGeometry pathGeometry;
-        private Path path;
-        private PathFigure pathFigure;
-        private string currentFilePath;
-        private ContentControl selectedControl;
-        private TextBox focusedTextbox;
        
         
+        private string currentFilePath;
+        private ContentControl selectedControl;
         
         private FontStyle fontStyle;
         private FontWeight fontWeight;
         
         private Color fontColor;
-        bool bold = false, italic = false, underlined = false;
+       
         float oldLineCount;
         
        
@@ -52,7 +48,7 @@ namespace MyPaint01
             penColor = Colors.Black;
             fillColor = Colors.Black;
             penThickness = 1;
-            
+            btnSmooth.IsChecked = true;
             
 
         }
@@ -65,28 +61,10 @@ namespace MyPaint01
             fontStyle = FontStyles.Normal;
             fontWeight = FontWeights.Normal;
             
-            txtWidth.Text = doc.canvas.Width.ToString();
-            txtHeight.Text = doc.canvas.Height.ToString();
+            
         }
 
-        private void btnPointer_Click(object sender, RoutedEventArgs e)
-        {
-            doc.drawType = DrawType.nothing;
-            paintCanvas.Cursor = Cursors.Arrow;
-        }
-
-        private void btnPencil_Click(object sender, RoutedEventArgs e)
-        {
-            doc.drawType = DrawType.pencil;
-            paintCanvas.Cursor = Cursors.Pen;
-        }
-
-        private void btnBrush_Click(object sender, RoutedEventArgs e)
-        {
-            doc.drawType = DrawType.brush;
-            penThickness = 3;
-            paintCanvas.Cursor = Cursors.Pen;
-        }
+       
 
         private void btnLine_Click(object sender, RoutedEventArgs e)
         {
@@ -107,23 +85,11 @@ namespace MyPaint01
             paintCanvas.Cursor = Cursors.Cross;
         }
 
-        private void btnBucket_Click(object sender, RoutedEventArgs e)
-        {
-            doc.drawType = DrawType.fill;
-            paintCanvas.Cursor = Cursors.Pen;
-        }
+       
 
-        private void btnErazer_Click(object sender, RoutedEventArgs e)
-        {
-            doc.drawType = DrawType.erase;
-            paintCanvas.Cursor = Cursors.Arrow;
-        }
+       
 
-        private void btnText_Click(object sender, RoutedEventArgs e)
-        {
-            doc.drawType = DrawType.text;
-            paintCanvas.Cursor = Cursors.IBeam;
-        }
+        
 
         private void btnTriangle_Click(object sender, RoutedEventArgs e)
         {
@@ -148,30 +114,7 @@ namespace MyPaint01
             
             mDown = e.GetPosition(this.paintCanvas);
             capture = true;
-            if (doc.drawType == DrawType.brush || doc.drawType == DrawType.pencil || doc.drawType == DrawType.erase)
-            {           
-                pathGeometry = new PathGeometry();              
-                pathFigure = new PathFigure();
-                pathFigure.StartPoint = mDown;
-                pathFigure.IsClosed = false;
-                pathGeometry.Figures.Add(pathFigure);
-                path = new Path();
-                path.Stroke = new SolidColorBrush(penColor);
-                if (doc.drawType == DrawType.erase)
-                {
-                    path.Stroke = new SolidColorBrush(Colors.White);
-                }
-                if (doc.drawType == DrawType.brush || doc.drawType == DrawType.erase)
-                {
-                    path.StrokeThickness = penThickness;
-                }
-                else if(doc.drawType == DrawType.pencil)
-                {
-                    path.StrokeThickness = 1;
-                }
-                path.Data = pathGeometry;
-                doc.DrawShape(path, 1);
-            }
+            
 
             
            
@@ -184,15 +127,9 @@ namespace MyPaint01
 
         }
 
-       
-
         
-       
 
-        void txt_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
-        {
-            focusedTextbox = (TextBox)sender;
-        }
+     
 
        
 
@@ -236,7 +173,7 @@ namespace MyPaint01
                     curShape.Stroke = new SolidColorBrush(penColor);
                 }
               
-                if (mMove.X <= mDown.X && mMove.Y <= mDown.Y) 
+                if (mMove.X <= mDown.X && mMove.Y <= mDown.Y)  //Góc phần tư thứ nhất
                 {
                     curShape.Margin = new Thickness(mMove.X, mMove.Y, 0, 0);
                 }
@@ -281,12 +218,7 @@ namespace MyPaint01
 
                 }
             }
-            else if ((doc.drawType == DrawType.brush || doc.drawType == DrawType.pencil || doc.drawType == DrawType.erase) && capture)
-            {
-                LineSegment ls = new LineSegment();
-                ls.Point = mMove;
-                pathFigure.Segments.Add(ls);
-            }
+            
         }
 
         private void paintCanvas_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -346,7 +278,7 @@ namespace MyPaint01
                     curControl.Content = temp;
                     curControl.Style = FindResource("DesignerItemStyle") as Style;
                     curControl.Background = new SolidColorBrush(Colors.White);
-                    
+                    doc.DrawShape(curControl, GetOutline());
 
                 }
 
@@ -361,13 +293,41 @@ namespace MyPaint01
                 line.X2 = curLine.X2;
                 line.Y1 = curLine.Y1;
                 line.Y2 = curLine.Y2;
-                
+                doc.DrawShape(line, GetOutline());
                 curLine = null;
             }
 
         }
 
-       
+        private void cbxThickness_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+            if (cbxThickness.SelectedIndex == 0)
+            {
+                penThickness = 1;
+            }
+            else if (cbxThickness.SelectedIndex == 1)
+            {
+                penThickness = 3;
+            }
+            else if (cbxThickness.SelectedIndex == 2)
+            {
+                penThickness = 5;
+            }
+            else if (cbxThickness.SelectedIndex == 3)
+            {
+                penThickness = 7;
+            }
+            if (paintCanvas.Children.Count > 1)
+            {
+                if (Selector.GetIsSelected(paintCanvas.Children[1]))
+                {
+                    selectedControl = paintCanvas.Children[1] as ContentControl;
+                    ((Shape)selectedControl.Content).StrokeThickness = penThickness;
+                }
+                
+            }
+        }
 
         private void ColorButton_Click(object sender, RoutedEventArgs e)
         {
@@ -444,16 +404,41 @@ namespace MyPaint01
         }
         private void menuFileSaveAs_Click(object sender, RoutedEventArgs e)
         {
-            doc.SaveFile(currentFilePath);   
+            doc.SaveFile(currentFilePath);   //Hien thi hop thoai luu tap tin
         }
 
-        
+        private int GetOutline()
+        {
+            if (btnSmooth.IsChecked == true)
+            {
+                return 1;
+            }
+            else if (btnDash.IsChecked == true)
+            {
+                return 2;
+            }
+            return 3;
+        }
 
-       
+        private void btnSmooth_Checked(object sender, RoutedEventArgs e)
+        {
+            btnDash.IsChecked = false;
+            btnDot.IsChecked = false;
+            if (paintCanvas.Children.Count > 1)
+            {
+                if (Selector.GetIsSelected(paintCanvas.Children[1]))
+                {
+                    selectedControl = paintCanvas.Children[1] as ContentControl;
+                    ((Shape)selectedControl.Content).StrokeDashArray = null;
+                }
+
+            }
+        }
 
         private void btnDash_Checked(object sender, RoutedEventArgs e)
         {
-            
+            btnSmooth.IsChecked = false;
+            btnDot.IsChecked = false;
             double[] dashes = { 4, 4 };
             if (paintCanvas.Children.Count > 1)
             {
@@ -468,7 +453,8 @@ namespace MyPaint01
 
         private void btnDot_Checked(object sender, RoutedEventArgs e)
         {
-            
+            btnSmooth.IsChecked = false;
+            btnDash.IsChecked = false;
             double[] dashes = { 4, 1, 4, 1 };
             if (paintCanvas.Children.Count > 1)
             {
@@ -494,7 +480,7 @@ namespace MyPaint01
           
 
 
-        private void paintCanvas_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)   
+        private void paintCanvas_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)    //Unselect
         {
             Line temp = new Line();
             if (doc.drawType == DrawType.nothing)
@@ -509,7 +495,7 @@ namespace MyPaint01
                     }
                 }
             }
-           
+            
         }
 
      
@@ -544,7 +530,7 @@ namespace MyPaint01
         {
             if (selectedControl != null)
             {
-                if(doc.canvas.Children.Contains(selectedControl))   
+                if(doc.canvas.Children.Contains(selectedControl))   //Neu da ton tai, tao them nhan ban
                 {
                     ContentControl temp = new ContentControl();
                     temp.Width = selectedControl.Width;
@@ -573,115 +559,29 @@ namespace MyPaint01
             }
         }
 
-        
+                
 
-        private void btnOtherColorsText_Click(object sender, RoutedEventArgs e)
-        {
+       
 
-            System.Windows.Forms.ColorDialog dlg = new System.Windows.Forms.ColorDialog();
-            dlg.AllowFullOpen = true;
-            dlg.ShowDialog();
-            Color color = new Color();
-            color.A = dlg.Color.A;
-            color.R = dlg.Color.R;
-            color.G = dlg.Color.G;
-            color.B = dlg.Color.B;           
-           
-          
-        }
+       
 
         
 
-        
-
-        private void btnBold_Click(object sender, RoutedEventArgs e)
-        {       
-            bold = !bold;
-            if (bold)
-            {
-                if (focusedTextbox != null)
-                {
-                    focusedTextbox.FontWeight = FontWeights.Bold;
-                }
-            }
-            else
-            {
-                if (focusedTextbox != null)
-                {
-                    focusedTextbox.FontWeight = FontWeights.Normal;
-                }
-            }
-        }
-
-        private void btnItalic_Click(object sender, RoutedEventArgs e)
-        {
-            italic = !italic;
-            if (italic)
-            {
-                if (focusedTextbox != null)
-                {
-                    focusedTextbox.FontStyle = FontStyles.Italic;
-                }
-            }
-            else
-            {
-                if (focusedTextbox != null)
-                {
-                    focusedTextbox.FontStyle = FontStyles.Normal;
-                }
-            }
-        }
-
-        private void btnUnderlined_Click(object sender, RoutedEventArgs e)
-        {
-            underlined = !underlined;
-            if (underlined)
-            {
-                if (focusedTextbox != null)
-                {
-                    if (focusedTextbox.TextDecorations == null)
-                    {
-                        focusedTextbox.TextDecorations = new TextDecorationCollection();
-                    }
-                    focusedTextbox.TextDecorations = TextDecorations.Underline;
-
-                }
-            }
-            else
-            {
-                if (focusedTextbox != null)
-                {
-                    focusedTextbox.TextDecorations = null;
-                }
-            }
-        }
-
-        
-
-        private void CanvasSizeChange(object sender, KeyboardFocusChangedEventArgs e)  
+        private void CanvasSizeChange(object sender, KeyboardFocusChangedEventArgs e)   //Change size of canvas
         {
             UpdateCanvasSize();
         }
 
         private void UpdateCanvasSize()
         {
-            if (txtWidth.Text == "")
-            {
-                txtWidth.Text = doc.canvas.Width.ToString();
-            }
-            if (txtHeight.Text == "")
-            {
-                txtHeight.Text = doc.canvas.Height.ToString();
-            }
+            
             try
             {
-                if (txtWidth.Text != "" && txtHeight.Text != "")
-                {
+                
                     doc.canvas.ClipToBounds = true;
                     doc.canvas.SnapsToDevicePixels = true;
-                    doc.canvas.Width = Convert.ToDouble(txtWidth.Text);
-                    doc.canvas.Height = Convert.ToDouble(txtHeight.Text);
-                }
+                    
+                
             }
             catch (FormatException ex)
             {
@@ -689,6 +589,8 @@ namespace MyPaint01
             }
             
         }
+
+       
 
         private void ConfirmCanvasSize(object sender, KeyEventArgs e)
         {
@@ -709,7 +611,7 @@ namespace MyPaint01
                 {
                     e.Handled = true;
 
-                    
+                    // just a little sound effect for wrong key pressed
                     System.Media.SystemSound ss = System.Media.SystemSounds.Beep;
                     ss.Play();
 
@@ -719,7 +621,7 @@ namespace MyPaint01
 
         private void paintCanvas_KeyDown(object sender, KeyEventArgs e) 
         {
-            if (e.Key == Key.Delete) 
+            if (e.Key == Key.Delete) //Delete a shape
             {
                 if (selectedControl != null)
                 {
@@ -730,7 +632,7 @@ namespace MyPaint01
 
         private void paintCanvas_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Delete) 
+            if (e.Key == Key.Delete) //Delete a shape
             {
                 if (selectedControl != null)
                 {
@@ -741,7 +643,7 @@ namespace MyPaint01
 
         private void My_Paint_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Delete) 
+            if (e.Key == Key.Delete) //Delete a shape
             {
                 if(Selector.GetIsSelected(paintCanvas.Children[paintCanvas.Children.Count - 1]))
                 {
